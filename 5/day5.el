@@ -29,7 +29,7 @@
     (forward-line))
   (let ((i 1)
         (table (make-hash-table))
-        stack stacks bound)
+        stack bound)
     (while (re-search-forward "[0-9]+" (line-end-position) t)
       (puthash (string-to-number (match-string 0)) nil table))
     (setq bound (point))
