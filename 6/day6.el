@@ -33,12 +33,11 @@
            (let (chars c)
              (catch 'done
                (while (char-after)
-                 (cond
-                  ((= (length chars) L) (throw 'done t))
-                  (t (setq chars (nreverse chars))
-                     (while (member (char-after) chars) (pop chars))
-                     (setq chars (nreverse chars))
-                     (push (char-after) chars)))
+                 (if (= (length chars) L) (throw 'done t))
+                 (setq chars (nreverse chars))
+                 (while (member (char-after) chars) (pop chars))
+                 (setq chars (nreverse chars))
+                 (push (char-after) chars)
                  (forward-char)))
              (1- (point)))))
       (let ((p1 (find-it 4)) p2)
