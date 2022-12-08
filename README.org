@@ -1,0 +1,2 @@
+Started a week too late. Will be doing those in Emacs lisp mostly to practive
+Emacs Lisp; but with a very short time, will probably do only few days, unfortuantely.
