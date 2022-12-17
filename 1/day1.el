@@ -24,31 +24,21 @@
 
 ;;; Code:
 
-(defun day1-read-supply ()
-  "Read supply from one raindeer."
-  (let ((sum 0))
-    (while (and (char-after) (/= ?\n (char-after)))
-      (let ((input (read (current-buffer))))
-        (setq sum (+ sum input)))
-      (forward-line))
-    sum))
-
-(defun day1-read-supplies ()
+(defun day1 ()
+  (interactive)
   (with-temp-buffer
     (insert-file-contents-literally "./input")
-    (switch-to-buffer (current-buffer))
-    (let ((max 0) list)
+    (let (supplies)
       (while (not (eobp))
-        (push (day1-read-supply) list)
+        (let ((sum 0))
+          (while (and (char-after) (/= ?\n (char-after)))
+            (cl-incf sum (read (current-buffer)))
+            (forward-line))
+          (push sum supplies))
         (forward-line))
-      (cl-sort list '>))))
-
-(defun day1-solve ()
-  (interactive)
-  (let* ((supplies (day1-read-supplies))
-         (top (pop supplies))
-         (top3 (+ top (pop supplies) (pop supplies))))
-    (message "Part I: %s\nPart II: %s" top top3)))
+      (setq supplies (cl-sort supplies #'>))
+      (message "Part I: %s\nPart II: %s"
+               (car supplies) (apply #'+ (last (nreverse supplies) 3))))))
 
 (provide 'day1)
 ;;; day1.el ends here
