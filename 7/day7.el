@@ -29,31 +29,32 @@
   (with-temp-buffer
     (insert-file-contents-literally "input")
     (let ((p1 0) (p2 70000000) (fs (make-hash-table :test 'equal)))
+
+      (let (subdirs files path begls endls)
+        (while (not (eobp))
+          (cond         
+           ((looking-at "$ cd \\(/\\|[a-z]+\\)")
+            (when begls
+              (puthash (apply #'concat path) (list files subdirs) fs)
+              (setq endls t))
+            (push (match-string 1) path))
+           ((looking-at "$ ls")
+            (setq begls t))
+           ((looking-at "[0-9]+ ")
+            (push (read (current-buffer)) files))         
+           ((looking-at "dir \\([a-z]+\\)")
+            (push (apply #'concat (match-string 1) path) subdirs))
+           ((looking-at-p "$ cd \\.\\.")
+            (when begls
+              (puthash (apply #'concat path) (list files subdirs) fs)
+              (setq endls t))
+            (pop path)))
+          (and begls endls (setq subdirs nil files nil begls nil endls nil))
+          (forward-line))
+        (puthash (apply #'concat path) (list files subdirs) fs))
+      
       (cl-labels
-          ((makefs ()
-             (let (subdirs files path begls endls)
-               (while (not (eobp))
-                 (cond         
-                  ((looking-at "$ cd \\(/\\|[a-z]+\\)")
-                   (when begls
-                     (puthash (apply #'concat path) (list files subdirs) fs)
-                     (setq endls t))
-                   (push (match-string 1) path))
-                  ((looking-at "$ ls")
-                   (setq begls t))
-                  ((looking-at "[0-9]+ ")
-                   (push (read (current-buffer)) files))         
-                  ((looking-at "dir \\([a-z]+\\)")
-                   (push (apply #'concat (match-string 1) path) subdirs))
-                  ((looking-at-p "$ cd \\.\\.")
-                   (when begls
-                     (puthash (apply #'concat path) (list files subdirs) fs)
-                     (setq endls t))
-                   (pop path)))
-                 (and begls endls (setq subdirs nil files nil begls nil endls nil))
-                 (forward-line))
-               (puthash (apply #'concat path) (list files subdirs) fs)))
-           (dir-size (v)
+          ((dir-size (v)
              (let ((size 0))
                (if (car v)
                    (cl-incf size (apply #'+ (car v))))
@@ -61,7 +62,7 @@
                    (dolist (p (cadr v))
                      (cl-incf size (dir-size (gethash p fs)))))
                size)))
-        (makefs)
+        
         (let ((left (- 70000000 (dir-size (gethash "/" fs)))))
           (maphash
            (lambda (k v)
@@ -71,6 +72,5 @@
                     (setq p2 size)))) fs)
           (message "Part I:  %s\nPart II: %s" p1 p2))))))
 
-
-(provide 'day7)
+(provide 'day7))
 ;;; day7.el ends here
