@@ -66,10 +66,7 @@
           (maphash
            (lambda (k v)
              (let ((size (dir-size v)))
-               (if (<= size 100000) (cl-incf p1 size)))) fs)
-          (maphash
-           (lambda (k v)
-             (let ((size (dir-size v)))
+               (if (<= size 100000) (cl-incf p1 size))
                (and (>= (+ size left) 30000000) (< size p2)
                     (setq p2 size)))) fs)
           (message "Part I:  %s\nPart II: %s" p1 p2))))))
